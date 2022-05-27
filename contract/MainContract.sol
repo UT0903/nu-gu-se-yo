@@ -19,8 +19,7 @@ contract MainContract {
         uint total;
     }
 
-    // Mapping from "hash of ID" to "struct Information"
-    mapping(bytes32 => Information) info;
+    Information info;
 
     event Deposit  (address user, uint amount);
     event Withdraw (address user, uint amount);
@@ -28,17 +27,7 @@ contract MainContract {
     
     // Check whether requests are from owner address
     modifier fromOwner {
-        require(msg.sender == owner, "Only node.js server can use this function.");
-        _;
-    }
-
-    modifier entryCreated (bytes32 id) {
-        require(info[id].created == true, "Create info entry for this id first.");
-        _;
-    }
-
-    modifier entryUncreated (bytes32 id) {
-        require(info[id].created == false, "There is an existing entry for this id.");
+        require(msg.sender == owner, "Only owner can use this function.");
         _;
     }
 
@@ -46,84 +35,82 @@ contract MainContract {
     constructor(address addr) payable {
         owner = addr;
     }
-
-    function createInfoEntry (bytes32 id) public fromOwner entryUncreated(id) {
-        info[id].created = true;
-    }
     
-    // No need to check sender for deposit.
-    function deposit (bytes32 id) public payable entryCreated(id) {
+    function deposit () public payable fromOwner {
         emit Deposit(msg.sender, msg.value);
-        info[id].balance += msg.value;
+        info.balance += msg.value;
     }
     
-    function withdraw (bytes32 id, uint amount) external fromOwner entryCreated(id) {
-        require(amount <= info[id].balance, "Inadequate balance.");
+    function withdraw (uint amount) external fromOwner {
+        require(amount <= info.balance, "Inadequate balance.");
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Failed to send Ether.");
         emit Withdraw(msg.sender, amount);
     }
     
-    function addBeneficiary (bytes32 id, address addr, uint portion) public fromOwner entryCreated(id) {
-        require(info[id].numBeneficiaries < MAX_BENEFICIARIES, "Too many beneficiaries, Max: 64.");
-        require(info[id].total + portion <= 100, "Invalid portion(> 100%), please adjust other beneficiaries' portion.");
-        for (uint i = 0; i < info[id].numBeneficiaries; i++) {
-            require(info[id].beneficiaries[i].addr != addr, "This address is already a beneficiary.");
+    function addBeneficiary (address addr, uint portion) public fromOwner {
+        require(info.numBeneficiaries < MAX_BENEFICIARIES, "Too many beneficiaries, Max: 64.");
+        require(info.total + portion <= 100, "Invalid portion(> 100%), please adjust other beneficiaries' portion.");
+        for (uint i = 0; i < info.numBeneficiaries; i++) {
+            require(info.beneficiaries[i].addr != addr, "This address is already a beneficiary.");
         }
-        info[id].beneficiaries[info[id].numBeneficiaries++] = BeneficiaryInformation({
+        info.beneficiaries[info.numBeneficiaries++] = BeneficiaryInformation({
             addr: addr,
             portion: portion
         });
-        info[id].total += portion;
+        info.total += portion;
     }
 
-    function removeBeneficiary (bytes32 id, address addr) public fromOwner {
-        require(info[id].created == true, "Create info entry for this id first.");
+    function removeBeneficiary (address addr) public fromOwner {
         uint idx = 0;
         bool found = false;
-        for (uint i = 0; i < MAX_BENEFICIARIES; i++) {
-            if (info[id].beneficiaries[i].addr == addr) {
+        for (uint i = 0; i < info.numBeneficiaries; i++) {
+            if (info.beneficiaries[i].addr == addr) {
                 idx = i;
                 found = true;
                 break;
             }
         }
         require(found, "Cannot find this beneficiary.");
-        info[id].beneficiaries[idx] = BeneficiaryInformation({
-            addr: info[id].beneficiaries[info[id].numBeneficiaries - 1].addr,
-            portion: info[id].beneficiaries[info[id].numBeneficiaries - 1].portion
+        info.beneficiaries[idx] = BeneficiaryInformation({
+            addr: info.beneficiaries[info.numBeneficiaries - 1].addr,
+            portion: info.beneficiaries[info.numBeneficiaries - 1].portion
         });
-        delete info[id].beneficiaries[info[id].numBeneficiaries--];
+        delete info.beneficiaries[info.numBeneficiaries--];
     }
 
-    function adjustPortion (bytes32 id, uint idx, uint _portion) public fromOwner entryCreated(id) {
+    function adjustPortion (uint idx, uint _portion) public fromOwner {
         require(
-            info[id].total - info[id].beneficiaries[idx].portion + _portion <= 100, 
+            info.total - info.beneficiaries[idx].portion + _portion <= 100, 
             "Invalid portion(> 100%), please adjust other beneficiaries' portion"
         );
-        info[id].beneficiaries[idx].portion = _portion;
+        info.beneficiaries[idx].portion = _portion;
     }
 
-    function execute (bytes32 id) public fromOwner entryCreated(id) {
-        require(info[id].total == 100, "Invalid portion(!= 100%), please adjust beneficiaries' portions");
-        for (uint i = 0; i < info[id].numBeneficiaries; i++) {
-            uint value = info[id].balance * info[id].beneficiaries[i].portion / 100;
-            (bool success, ) = info[id].beneficiaries[i].addr.call{value: value}("");
+    function destroy (address payable addr) public fromOwner {
+        selfdestruct(addr);
+    }
+
+    function execute () public fromOwner {
+        require(info.total == 100, "Invalid portion(!= 100%), please adjust beneficiaries' portions");
+        for (uint i = 0; i < info.numBeneficiaries; i++) {
+            uint value = info.balance * info.beneficiaries[i].portion / 100;
+            (bool success, ) = info.beneficiaries[i].addr.call{value: value}("");
             require(success, "Failed to distribute Ethers to beneficiaries.");
         }
     }
 
     // Functions below are for information query
-    function getNumBeneficiaries (bytes32 id) public view fromOwner entryCreated(id) returns(uint) {
-        return info[id].numBeneficiaries;
+    function getNumBeneficiaries () public view fromOwner returns(uint) {
+        return info.numBeneficiaries;
     }
 
-    function getBeneficiary (bytes32 id, uint idx) public view fromOwner entryCreated(id) returns(address, uint) {
-        return (info[id].beneficiaries[idx].addr, info[id].beneficiaries[idx].portion);
+    function getBeneficiary (uint idx) public view fromOwner returns(address, uint) {
+        return (info.beneficiaries[idx].addr, info.beneficiaries[idx].portion);
     }
 
-    function getInformation (bytes32 id) public view fromOwner entryCreated(id) returns(uint, uint) {
-        return (info[id].balance, info[id].numBeneficiaries);
+    function getInformation () public view fromOwner returns(uint, uint) {
+        return (info.balance, info.numBeneficiaries);
     }
 
     receive() external payable {
