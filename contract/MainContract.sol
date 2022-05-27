@@ -42,6 +42,9 @@ contract MainContract {
         require(info[id].created == false, "There is an existing entry for this id.");
         _;
     }
+    
+    // Just for deploying contract with ethers.
+    constructor() payable {}
 
     function createInfoEntry (bytes32 id) public fromServer entryUncreated(id) {
         info[id].created = true;
