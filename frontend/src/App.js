@@ -1,24 +1,53 @@
-import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-
 import './App.css';
+import 'antd/dist/antd.css';
 
-import MainPage from './containers/MainPage';
-import RegisterPage from './containers/RegisterPage';
-import RecuePage from './containers/RescuePage';
+import {Modal} from 'antd'
+import React, {useEffect, useState} from 'react'
 
-class App extends Component {
-  render() {
-    return (
-      <Router>
-        <Switch>
-          <Route exact path="/" component={MainPage} />
-          <Route exact path="/register" component={RegisterPage} />
-          <Route exact path="/rescue" component={RecuePage} />
-        </Switch>
-      </Router>
-    );
+import LoginForm from './components/LoginForm';
+import MainPanel from './components/MainPanel';
+import TopMenu from './components/TopMenu';
+
+const App = () => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [modalShow, setModalShow] = useState(false);
+
+  useEffect(() => {
+    document.title = 'nu-gu-se-yo';
+  }, []);
+
+  const handleLogin = () => {
+      setModalShow(true);
+  };
+
+  const handleLogout = () => {
+    setUserInfo(null);
   }
+
+  return (
+    <div className='App'>
+      <TopMenu data={userInfo}
+          onLogin={handleLogin}
+          onLogout={handleLogout} />
+      <Modal 
+        title="Basic Modal"
+        visible={modalShow}
+        footer={[]}
+        onCancel={() => { setModalShow(false) }}
+      >
+        <LoginForm
+            backdrop={true}
+            show={modalShow}
+            onHide={() => {
+              setModalShow(false);
+            }}
+            setUserInfo={setUserInfo}
+            otherOption='Cancel'
+        />
+      </Modal>
+      <MainPanel userInfo={userInfo}/>
+    </div>
+    );
 }
 
 export default App;
