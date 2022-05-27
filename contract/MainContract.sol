@@ -3,9 +3,8 @@ pragma solidity <= 0.8.14;
 
 contract MainContract {
 
-    // Address of node.js server
     uint constant MAX_BENEFICIARIES = 64;
-    address constant SERVER_ADDR = 0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF;
+    address owner;
 
     struct BeneficiaryInformation {
         address addr;
@@ -27,9 +26,9 @@ contract MainContract {
     event Withdraw (address user, uint amount);
     event Receive  (address from, uint amount);
     
-    // Check whether requests are from node.js server
-    modifier fromServer {
-        require(msg.sender == SERVER_ADDR, "Only node.js server can use this function.");
+    // Check whether requests are from owner address
+    modifier fromOwner {
+        require(msg.sender == owner, "Only node.js server can use this function.");
         _;
     }
 
@@ -42,11 +41,13 @@ contract MainContract {
         require(info[id].created == false, "There is an existing entry for this id.");
         _;
     }
-    
-    // Just for deploying contract with ethers.
-    constructor() payable {}
 
-    function createInfoEntry (bytes32 id) public fromServer entryUncreated(id) {
+    // Just for deploying contract with ethers.
+    constructor(address addr) payable {
+        owner = addr;
+    }
+
+    function createInfoEntry (bytes32 id) public fromOwner entryUncreated(id) {
         info[id].created = true;
     }
     
@@ -56,14 +57,14 @@ contract MainContract {
         info[id].balance += msg.value;
     }
     
-    function withdraw (bytes32 id, uint amount) external fromServer entryCreated(id) {
+    function withdraw (bytes32 id, uint amount) external fromOwner entryCreated(id) {
         require(amount <= info[id].balance, "Inadequate balance.");
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Failed to send Ether.");
         emit Withdraw(msg.sender, amount);
     }
     
-    function addBeneficiary (bytes32 id, address addr, uint portion) public fromServer entryCreated(id) {
+    function addBeneficiary (bytes32 id, address addr, uint portion) public fromOwner entryCreated(id) {
         require(info[id].numBeneficiaries < MAX_BENEFICIARIES, "Too many beneficiaries, Max: 64.");
         require(info[id].total + portion <= 100, "Invalid portion(> 100%), please adjust other beneficiaries' portion.");
         for (uint i = 0; i < info[id].numBeneficiaries; i++) {
@@ -76,7 +77,7 @@ contract MainContract {
         info[id].total += portion;
     }
 
-    function removeBeneficiary (bytes32 id, address addr) public fromServer {
+    function removeBeneficiary (bytes32 id, address addr) public fromOwner {
         require(info[id].created == true, "Create info entry for this id first.");
         uint idx = 0;
         bool found = false;
@@ -95,7 +96,7 @@ contract MainContract {
         delete info[id].beneficiaries[info[id].numBeneficiaries--];
     }
 
-    function adjustPortion (bytes32 id, uint idx, uint _portion) public fromServer entryCreated(id) {
+    function adjustPortion (bytes32 id, uint idx, uint _portion) public fromOwner entryCreated(id) {
         require(
             info[id].total - info[id].beneficiaries[idx].portion + _portion <= 100, 
             "Invalid portion(> 100%), please adjust other beneficiaries' portion"
@@ -103,7 +104,7 @@ contract MainContract {
         info[id].beneficiaries[idx].portion = _portion;
     }
 
-    function execute (bytes32 id) public fromServer entryCreated(id) {
+    function execute (bytes32 id) public fromOwner entryCreated(id) {
         require(info[id].total == 100, "Invalid portion(!= 100%), please adjust beneficiaries' portions");
         for (uint i = 0; i < info[id].numBeneficiaries; i++) {
             uint value = info[id].balance * info[id].beneficiaries[i].portion / 100;
@@ -113,15 +114,15 @@ contract MainContract {
     }
 
     // Functions below are for information query
-    function getNumBeneficiaries (bytes32 id) public view fromServer entryCreated(id) returns(uint) {
+    function getNumBeneficiaries (bytes32 id) public view fromOwner entryCreated(id) returns(uint) {
         return info[id].numBeneficiaries;
     }
 
-    function getBeneficiary (bytes32 id, uint idx) public view fromServer entryCreated(id) returns(address, uint) {
+    function getBeneficiary (bytes32 id, uint idx) public view fromOwner entryCreated(id) returns(address, uint) {
         return (info[id].beneficiaries[idx].addr, info[id].beneficiaries[idx].portion);
     }
 
-    function getInformation (bytes32 id) public view fromServer entryCreated(id) returns(uint, uint) {
+    function getInformation (bytes32 id) public view fromOwner entryCreated(id) returns(uint, uint) {
         return (info[id].balance, info[id].numBeneficiaries);
     }
 
