@@ -84,6 +84,7 @@ contract MainContract {
             info.total - info.beneficiaries[idx].portion + _portion <= 100, 
             "Invalid portion(> 100%), please adjust other beneficiaries' portion"
         );
+        info.total = info.total - info.beneficiaries[idx].portion + _portion;
         info.beneficiaries[idx].portion = _portion;
     }
 
