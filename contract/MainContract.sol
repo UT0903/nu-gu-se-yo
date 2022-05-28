@@ -45,6 +45,7 @@ contract MainContract {
         require(amount <= info.balance, "Inadequate balance.");
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Failed to send Ether.");
+        info.balance -= amount;
         emit Withdraw(msg.sender, amount);
     }
     
