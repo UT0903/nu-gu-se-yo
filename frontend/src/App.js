@@ -11,7 +11,6 @@ import TopMenu from './components/TopMenu';
 const App = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [modalShow, setModalShow] = useState(false);
-
   useEffect(() => {
     document.title = 'nu-gu-se-yo';
   }, []);
