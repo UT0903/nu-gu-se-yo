@@ -1,7 +1,7 @@
 import './App.css';
 import 'antd/dist/antd.css';
 
-import {Modal} from 'antd'
+
 import React, {useEffect, useState} from 'react'
 
 import LoginForm from './components/LoginForm';
@@ -17,34 +17,33 @@ const App = () => {
   }, []);
 
   const handleLogin = () => {
-      setModalShow(true);
+    setModalShow(true);
   };
 
   const handleLogout = () => {
     setUserInfo(null);
   }
-
+  const onFinish = (values) => {
+    setUserInfo(values);
+    setModalShow(false);
+    console.log('Success:', values);
+    };
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+  };
   return (
     <div className='App'>
-      <TopMenu data={userInfo}
+      <TopMenu userInfo={userInfo}
           onLogin={handleLogin}
           onLogout={handleLogout} />
-      <Modal 
-        title="Basic Modal"
-        visible={modalShow}
-        footer={[]}
-        onCancel={() => { setModalShow(false) }}
-      >
         <LoginForm
-            backdrop={true}
-            show={modalShow}
-            onHide={() => {
-              setModalShow(false);
-            }}
+            modalShow={modalShow}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            setModalShow={setModalShow}
             setUserInfo={setUserInfo}
-            otherOption='Cancel'
+            userInfo={userInfo}
         />
-      </Modal>
       <MainPanel userInfo={userInfo}/>
     </div>
     );

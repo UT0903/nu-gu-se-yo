@@ -1,17 +1,15 @@
 import { Button, Checkbox, Form, Input } from 'antd';
-
-const App = ({}) => {
-  
-const onFinish = (values) => {
-    console.log('Success:', values);
-    };
-  const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-  };
-
+import {Modal} from 'antd'
+const App = ({ onFinish, onFinishFailed, modalShow, userInfo, setModalShow}) => {
   return (
+    <Modal 
+        title="Please Login"
+        visible={modalShow && !userInfo}
+        footer={[]}
+        onCancel={() => { setModalShow(false) }}
+      >
     <Form
-      name="basic"
+      name="login"
       labelCol={{
         span: 8,
       }}
@@ -34,8 +32,8 @@ const onFinish = (values) => {
             message: 'Please input your id!',
             },
             {
-                pattern: /[A-Z][0-9]{9}/,
-                message: "pattern: A123456789"
+                pattern: /^[A-Z][0-9]{9}$/,
+                message: "Pattern: A123456789"
             }
         ]}
       >
@@ -51,17 +49,14 @@ const onFinish = (values) => {
             message: 'Please input your password!',
             },
             {
-                pattern: /[0-9A-Za-z]+/,
+                pattern: /^[0-9A-Za-z]+$/,
                 message: 'Only Contains Alphabets and Numbers'
             },
             {
-                min: 6,
-                message: 'len < 6',
+              min: 6,
+              max: 12,
+                message: '5 < Len < 13',
             },
-            {
-                max: 12,
-                message: 'len > 12',
-              },
         ]}
       >
         <Input.Password />
@@ -88,7 +83,8 @@ const onFinish = (values) => {
           Submit
         </Button>
       </Form.Item>
-    </Form>
+      </Form>
+      </Modal>
   );
 };
 
