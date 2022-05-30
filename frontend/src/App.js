@@ -12,6 +12,8 @@ import axios from 'axios';
 const App = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [modalShow, setModalShow] = useState(false);
+  console.log('userInfo')
+  console.log(userInfo)
   useEffect(() => {
     document.title = 'nu-gu-se-yo';
   }, []);
@@ -29,12 +31,11 @@ const App = () => {
       body: JSON.stringify(
         {
           id: values.id,
-          passwrd: values.password,
+          password: values.password,
         }
       )
     });
     const data = await res.json();
-    
     if (data.status === 'ok') {
       setUserInfo({
         id: values.id,
@@ -47,7 +48,7 @@ const App = () => {
       message.error('Login Failed');
     }
     
-    };
+  };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
@@ -72,7 +73,7 @@ const App = () => {
             setUserInfo={setUserInfo}
             userInfo={userInfo}
         />
-        <MainPanel userInfo={userInfo} />
+      <MainPanel userInfo={userInfo} visibility={userInfo === null? "hidden": "visible"}/>
     </div>
     );
 }

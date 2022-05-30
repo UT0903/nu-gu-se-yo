@@ -16,4 +16,4 @@ export const getWeb3 = () => new Promise((resolve, reject) => {
   });
 })
 
-export const BASE_URL = 'https://b9c9-2001-b400-e2c2-c362-a00b-bf71-1297-2bbc.jp.ngrok.io';
+export const BASE_URL = 'https://a49d-111-71-213-207.jp.ngrok.io';

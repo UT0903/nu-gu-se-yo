@@ -1,4 +1,4 @@
-import { Table, Button, Modal, Form, Input, Space, InputNumber } from 'antd';
+import { Table, Button, Modal, Form, Input, Space, InputNumber, message } from 'antd';
 import { useState } from 'react';
 const AddressTable = ({ addressData, setAddressData}) => {
     const [modalShow, setModalShow] = useState(false);
@@ -7,7 +7,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
         setAddressData(_addressData);
         console.log(`del address ${record.address}`)
     };
-    const rescueAddress = (e) => {
+    const onRescue = (e) => {
         console.log(`rescue Address`)
     }
     const columns = [
@@ -22,7 +22,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
             key: 'address',
         },
         {
-            title: 'Ratio',
+            title: 'Ratio (%)',
             dataIndex: 'ratio',
             key: 'ratio'
         },
@@ -41,13 +41,19 @@ const AddressTable = ({ addressData, setAddressData}) => {
     }
     const addData = (value) => {
         console.log(value)
-        const _addressData = addressData.concat({
-            // name: value?.name,
-            address: value?.address,
-            ratio: value?.ratio
-        })
-        setAddressData(_addressData);
-        setModalShow(false);
+        if(addressData.filter((x) => x.address === value.address).length > 0) { 
+            message.error('address exists');
+        }
+        else {
+            const _addressData = addressData.concat({
+                // name: value?.name,
+                address: value?.address,
+                ratio: value?.ratio
+            })
+            setAddressData(_addressData);
+            setModalShow(false);
+        }
+        
     }
     return <Space direction='vertical'>
         <Modal
@@ -111,7 +117,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
         </Modal>
         <Space direction='horizontal'>
             <Button type="primary" onClick={showAddForm}>Add address</Button>
-            <Button type="primary" onClick={rescueAddress}>Rescue</Button>
+            <Button type="primary" onClick={onRescue}>Rescue</Button>
         </Space>
         <Table style={{
             minWidth: 800

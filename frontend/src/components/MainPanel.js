@@ -8,7 +8,7 @@ import { message, notification } from 'antd';
 import AddressTable from './AddressTable.js';
 const { Text, Title } = Typography;
 
-const MainPanel = ({userInfo}) => {
+const MainPanel = ({userInfo, visibility}) => {
       const [walletAddress, setWalletAddress] = useState(null);
       const [balance, setBalance] = useState(0.0);
 
@@ -100,7 +100,8 @@ const MainPanel = ({userInfo}) => {
       
       return (
         <Space direction='vertical' style={{
-          paddingTop:100
+          paddingTop: 100,
+          visibility: visibility
         }}>
           <Space direction='horizontal'>
           <Card
