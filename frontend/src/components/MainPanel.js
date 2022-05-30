@@ -18,19 +18,19 @@ const MainPanel =
       const [web3, setWeb3] = useState(null);
       const [addressData, setAddressData] = useState([]);
       const [form] = Form.useForm();
+
       useEffect(() => {
         loadWeb3();
       }, []);
 
-      const loadWeb3 =
-          async () => {
+      const loadWeb3 = async () => {
         const _web3 = await getWeb3();
         setWeb3(_web3);
         const accounts = await _web3.eth.getAccounts();
         setWalletAddress(accounts[0]);
         const _balance = await _web3.eth.getBalance(accounts[0]) / 1e18;
         console.log(_balance)
-            setBalance(_balance);
+        setBalance(_balance);
             // form.setFieldsValue({
             //   dir: '>>>',
             //   amount: _balance
@@ -38,6 +38,10 @@ const MainPanel =
       }
 
       const deployContract = async () => {
+        if (!userInfo) {
+          console.log('Please log in first!');
+          return;
+        }
         const _contract = new web3.eth.Contract(MainContract.abi);
         _contract.deploy({
           data: MainContract.bytecode,
@@ -46,7 +50,7 @@ const MainPanel =
           from: walletAddress
         }).then(deployedContract => {
           const _contractAddress = deployedContract.options.address;
-          console.log(`Contract deployed at ${_contractAddress} with ${_contractBalance} Eth`);
+          console.log(`Contract deployed at ${_contractAddress}`);
           setContractAddress(_contractAddress);
         }).catch(err => {
           console.log('Failed to deploy contact:', err);
@@ -54,16 +58,32 @@ const MainPanel =
       }
 
       const fetchContractInfo = async (address) => {
-        const _contractBalance = web3.eth.getBalance(address);
+        console.log(address);
+        const _contractBalance = await web3.eth.getBalance(address);
         setContractBalance(_contractBalance);
         const _contract = new web3.eth.Contract(MainContract.abi, address);
-        const _addressData = _contract.methods.getBeneficiary.call();
-        console.log(_addressData);
+        const numBeneficiaries = await _contract.methods.getNumBeneficiaries().call({
+          from: walletAddress
+        });
+        console.log(numBeneficiaries);
+        const beneficiaries = [];
+        for (let i = 0; i < numBeneficiaries; i++) {
+          const result = await _contract.methods.getBeneficiary(i).call({
+            from: walletAddress
+          });
+          beneficiaries.push({
+            address: result[0],
+            ratio: result[1]
+          });
+        }
+        console.log(beneficiaries);
+        setAddressData(beneficiaries);
       }
 
       useEffect(() => {
-        fetchContractInfo(contract);
-      }, [contract]);
+        if (web3 && contractAddress)
+          fetchContractInfo(contractAddress);
+      }, [contractAddress, web3]);
   
       const onTransfer = (value) => {
         console.log('onTransfer:')
@@ -97,9 +117,17 @@ const MainPanel =
               height: 250
             }}
             >
-              <Title level={5}>保險錢包地址:</Title>
-              <Title level={5}>{"0xblablablabla"}</Title>
-              <Title level={5}>保險錢包餘額: {3}</Title>
+              {
+                (contractAddress) ?
+                <div>
+                  <Title level={5}>保險錢包地址:</Title>
+                  <Title level={5}>{contractAddress}</Title>
+                  <Title level={5}>保險錢包餘額: {contractBalance}</Title>
+                </div> :
+                <div>
+                  <button onClick={deployContract}>Deploy contract</button>
+                </div>
+              }
           </Card>
           </Space>
           <AddressTable addressData={addressData} setAddressData={setAddressData} ></AddressTable>
