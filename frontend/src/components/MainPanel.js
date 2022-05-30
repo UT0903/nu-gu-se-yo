@@ -13,6 +13,7 @@ const MainPanel = ({userInfo}) => {
 
       const [contractAddress, setContractAddress] = useState(null);
       const [contractBalance, setContractBalance] = useState(0.0);
+      const [deployedContract, setDeployedContract] = useState(null);
 
       const [web3, setWeb3] = useState(null);
       const [addressData, setAddressData] = useState([]);
@@ -48,10 +49,11 @@ const MainPanel = ({userInfo}) => {
         .send({
           from: walletAddress
         })
-        .then(deployedContract => {
-          const _contractAddress = deployedContract.options.address;
+        .then(_deployedContract => {
+          const _contractAddress = _deployedContract.options.address;
           console.log(`Contract deployed at ${_contractAddress}`);
           setContractAddress(_contractAddress);
+          setDeployedContract(_deployedContract);
           notification.open({
             message: 'Contract Deployed',
             description: `Contract deployed at ${_contractAddress}`
@@ -80,11 +82,11 @@ const MainPanel = ({userInfo}) => {
         });
       }
 
-      const fetchContractInfo = async (address) => {
-        console.log(address);
-        const _contractBalance = await web3.eth.getBalance(address);
+      const fetchContractInfo = async () => {
+        console.log(contractAddress);
+        const _contractBalance = await web3.eth.getBalance(contractAddress);
         setContractBalance(_contractBalance);
-        const _contract = new web3.eth.Contract(MainContract.abi, address);
+        const _contract = new web3.eth.Contract(MainContract.abi, contractAddress);
         const numBeneficiaries = await _contract.methods.getNumBeneficiaries().call({
           from: walletAddress
         });
@@ -105,14 +107,17 @@ const MainPanel = ({userInfo}) => {
 
       useEffect(() => {
         if (web3 && contractAddress)
-          fetchContractInfo(contractAddress);
+          fetchContractInfo();
       }, [contractAddress, web3]);
 
       useEffect(() => {
         if (userInfo?.contract_address) {
           setContractAddress(userInfo.contract_address);
+          const _contract = new web3.eth.Contract(MainContract.abi, userInfo.contract_address);
+          setDeployedContract(_contract);
         } else {
           setContractAddress(null);
+          setDeployedContract(null);
         }
       }, [userInfo]);
   
@@ -161,7 +166,7 @@ const MainPanel = ({userInfo}) => {
               }
           </Card>
           </Space>
-          <AddressTable addressData={addressData} setAddressData={setAddressData} ></AddressTable>
+          <AddressTable addressData={addressData} setAddressData={setAddressData} walletAddress={walletAddress} fetchContractInfo={fetchContractInfo} deployedContract={deployedContract}></AddressTable>
         </Space>
       );
     }

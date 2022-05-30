@@ -1,6 +1,7 @@
 import { Table, Button, Modal, Form, Input, Space, InputNumber } from 'antd';
+import { notification } from 'antd';
 import { useState } from 'react';
-const AddressTable = ({ addressData, setAddressData}) => {
+const AddressTable = ({ addressData, setAddressData, walletAddress, deployedContract, fetchContractInfo}) => {
     const [modalShow, setModalShow] = useState(false);
     const delRecord = (record) => (_) => {
         const _addressData = addressData.filter((x) => (x?.address !== record?.address));
@@ -39,16 +40,24 @@ const AddressTable = ({ addressData, setAddressData}) => {
     const showAddForm = () => {
         setModalShow(true);
     }
-    const addData = (value) => {
+    
+    const addData = async (value) => {
         console.log(value)
         const _addressData = addressData.concat({
-            // name: value?.name,
             address: value?.address,
             ratio: value?.ratio
-        })
-        setAddressData(_addressData);
+        });
         setModalShow(false);
-    }
+        await deployedContract.methods.addBeneficiary(value.address, value.ratio).send({
+          from: walletAddress
+        });
+        notification.open({
+            message: 'Beneficiary Added'
+        })
+        await fetchContractInfo();
+        setAddressData(_addressData);
+      }
+
     return <Space direction='vertical'>
         <Modal
             visible={modalShow}
@@ -110,7 +119,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
             </Form>
         </Modal>
         <Space direction='horizontal'>
-            <Button type="primary" onClick={showAddForm}>Add address</Button>
+            <Button type="primary" onClick={showAddForm}>Add Beneficiary</Button>
             <Button type="primary" onClick={rescueAddress}>Rescue</Button>
         </Space>
         <Table style={{

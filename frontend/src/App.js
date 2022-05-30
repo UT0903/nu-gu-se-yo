@@ -23,7 +23,6 @@ const App = () => {
     setUserInfo(null);
   }
   const onFinish = async (values) => {
-    console.log(values);
     const res = await fetch(BASE_URL + "/api/login", {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded' },
@@ -33,14 +32,13 @@ const App = () => {
       })
     });
     const data = await res.json();
-    console.log(data);
     if (data.status === 'ok') {
       setUserInfo({
         id: values.id,
         contract_address: data.address
       });
       setModalShow(false);
-      console.log('Success:', values);
+      // console.log('Success:', values);
     }
     else {
       message.error('Login Failed');
