@@ -98,6 +98,7 @@ contract MainContract {
             }
         }
         require(found, "Cannot find this beneficiary.");
+        info.total -= info.beneficiaries[idx].portion;
         info.beneficiaries[idx] = BeneficiaryInformation({
             addr: info.beneficiaries[info.numBeneficiaries - 1].addr,
             portion: info.beneficiaries[info.numBeneficiaries - 1].portion
@@ -118,7 +119,7 @@ contract MainContract {
         selfdestruct(addr);
     }
 
-    function execute () public fromOwnerOrBeneficiary {
+    function execute () public {
         require(info.total == 100, "Invalid portion(!= 100%), please adjust beneficiaries' portions");
         for (uint i = 0; i < info.numBeneficiaries; i++) {
             uint value = info.balance * info.beneficiaries[i].portion / 100;
