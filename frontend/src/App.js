@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 
 
 import React, {useEffect, useState} from 'react'
-
+import { Card } from 'antd';
 import LoginForm from './components/LoginForm';
 import MainPanel from './components/MainPanel';
 import TopMenu from './components/TopMenu';
@@ -38,11 +38,11 @@ const App = () => {
       backgroundRepeat: 'no-repeat',
       width: '100vw',
       height: '100vh',
-      textAlign: 'center'
     }}>
+      
       <TopMenu userInfo={userInfo}
           onLogin={handleLogin}
-          onLogout={handleLogout} />
+        onLogout={handleLogout} />
         <LoginForm
             modalShow={modalShow}
             onFinish={onFinish}
@@ -51,7 +51,7 @@ const App = () => {
             setUserInfo={setUserInfo}
             userInfo={userInfo}
         />
-      <MainPanel userInfo={userInfo}/>
+        <MainPanel userInfo={userInfo} />
     </div>
     );
 }
