@@ -21,4 +21,4 @@ new Promise((resolve, reject) => {
   });
 })
 
-export const BASE_URL = 'http://10.5.5.174:3002';
+export const BASE_URL = 'https://342f-111-71-213-247.jp.ngrok.io';

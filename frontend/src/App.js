@@ -1,12 +1,13 @@
 import './App.css';
 import 'antd/dist/antd.css';
 
-
+import { BASE_URL } from './utils';
 import React, {useEffect, useState} from 'react'
-import { Card } from 'antd';
+import { Card, message } from 'antd';
 import LoginForm from './components/LoginForm';
 import MainPanel from './components/MainPanel';
 import TopMenu from './components/TopMenu';
+import axios from 'axios';
 
 const App = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -22,10 +23,22 @@ const App = () => {
   const handleLogout = () => {
     setUserInfo(null);
   }
-  const onFinish = (values) => {
-    setUserInfo(values);
-    setModalShow(false);
-    console.log('Success:', values);
+  const onFinish = async (values) => {
+    const res = await axios.post(BASE_URL + "/api/login", {
+      id: values.id,
+      passwrd: values.password,
+    });
+    if (res.status === 'ok') {
+      setUserInfo(
+        values.id
+      );
+      setModalShow(false);
+      console.log('Success:', values);
+    }
+    else {
+      message.error('Login Failed');
+    }
+    
     };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
