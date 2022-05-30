@@ -7,7 +7,6 @@ import { Card, message } from 'antd';
 import LoginForm from './components/LoginForm';
 import MainPanel from './components/MainPanel';
 import TopMenu from './components/TopMenu';
-import axios from 'axios';
 
 const App = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -26,20 +25,21 @@ const App = () => {
     setUserInfo(null);
   }
   const onFinish = async (values) => {
+    console.log(values);
     const res = await fetch(BASE_URL + "/api/login", {
       method: 'POST',
-      body: JSON.stringify(
-        {
-          id: values.id,
-          password: values.password,
-        }
-      )
+      headers: {'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+          'id': values.id,
+          'password': values.password
+      })
     });
     const data = await res.json();
+    console.log(data);
     if (data.status === 'ok') {
       setUserInfo({
         id: values.id,
-        address: data.address
+        contract_address: data.address
       });
       setModalShow(false);
       console.log('Success:', values);
@@ -51,6 +51,7 @@ const App = () => {
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
+    // message.error('Login Failed' + errorInfo);
   };
   return (
     <div className='App' style={{

@@ -1,12 +1,11 @@
 import {useEffect, useState} from 'react';
-import Web3 from 'web3';
 import TransferForm from './TransferForm.js';
 import MainContract from '../contracts/MainContract.json';
-import {getWeb3} from '../utils';
+import {getWeb3, BASE_URL} from '../utils';
 import { Space, Card, Form, Typography, Spin } from 'antd';
 import { message, notification } from 'antd';
 import AddressTable from './AddressTable.js';
-const { Text, Title } = Typography;
+const { Title } = Typography;
 
 const MainPanel = ({userInfo, visibility}) => {
       const [walletAddress, setWalletAddress] = useState(null);
@@ -33,10 +32,6 @@ const MainPanel = ({userInfo, visibility}) => {
         const _balance = await _web3.eth.getBalance(accounts[0]) / 1e18;
         console.log(_balance)
         setBalance(_balance);
-            // form.setFieldsValue({
-            //   dir: '>>>',
-            //   amount: _balance
-            // });
       }
 
       const deployContract = async () => {
@@ -49,9 +44,11 @@ const MainPanel = ({userInfo, visibility}) => {
         _contract.deploy({
           data: MainContract.bytecode,
           arguments: [walletAddress]
-        }).send({
+        })
+        .send({
           from: walletAddress
-        }).then(deployedContract => {
+        })
+        .then(deployedContract => {
           const _contractAddress = deployedContract.options.address;
           console.log(`Contract deployed at ${_contractAddress}`);
           setContractAddress(_contractAddress);
@@ -60,7 +57,25 @@ const MainPanel = ({userInfo, visibility}) => {
             description: `Contract deployed at ${_contractAddress}`
           });
           setDeploying(false);
-        }).catch(err => {
+          return fetch(BASE_URL + '/api/setContract', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                'id': userInfo.id,
+                'contract_address': _contractAddress
+            })
+          });
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'ok')
+            notification.open({
+              message: 'Contract address saved'
+            });
+          else
+            message.error('Failed to save contract address');
+        })
+        .catch(err => {
           message.error('Failed to deploy contact:', err);
         });
       }
@@ -92,6 +107,14 @@ const MainPanel = ({userInfo, visibility}) => {
         if (web3 && contractAddress)
           fetchContractInfo(contractAddress);
       }, [contractAddress, web3]);
+
+      useEffect(() => {
+        if (userInfo?.contract_address) {
+          setContractAddress(userInfo.contract_address);
+        } else {
+          setContractAddress(null);
+        }
+      }, [userInfo]);
   
       const onTransfer = (value) => {
         console.log('onTransfer:')
