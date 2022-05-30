@@ -104,9 +104,9 @@ const MainPanel =
               height: 250
             }}
           >
-              <Title level={5}>錢包地址:</Title>
+              <Title level={5}>Wallet Address:</Title>
               <Title level={5}>{walletAddress}</Title>
-              <Title level={5}>目前錢包餘額: {balance}</Title>
+              <Title level={5}>Wallet Remain: {balance}</Title>
           </Card>
             <TransferForm balance={{ wallet: balance, bank: 3 }} form={form} onTransfer={onTransfer}/>
           <Card
@@ -120,9 +120,9 @@ const MainPanel =
               {
                 (contractAddress) ?
                 <div>
-                  <Title level={5}>保險錢包地址:</Title>
+                  <Title level={5}>Insurance Address:</Title>
                   <Title level={5}>{contractAddress}</Title>
-                  <Title level={5}>保險錢包餘額: {contractBalance}</Title>
+                  <Title level={5}>Insurance Remain: {contractBalance}</Title>
                 </div> :
                 <div>
                   <button onClick={deployContract}>Deploy contract</button>
