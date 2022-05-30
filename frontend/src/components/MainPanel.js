@@ -20,7 +20,7 @@ const MainPanel = ({userInfo, visibility}) => {
       const [form] = Form.useForm();
 
       const [deploying, setDeploying] = useState(false);
-
+      
       useEffect(() => {
         loadWeb3();
       }, []);
@@ -31,7 +31,6 @@ const MainPanel = ({userInfo, visibility}) => {
         const accounts = await _web3.eth.getAccounts();
         setWalletAddress(accounts[0]);
         const _balance = await _web3.eth.getBalance(accounts[0]) / 1e18;
-        console.log(_balance)
         setBalance(_balance);
       }
 
@@ -130,6 +129,8 @@ const MainPanel = ({userInfo, visibility}) => {
               from: walletAddress,
               value: web3.utils.toWei(value.amount.toString(), 'ether')
             });
+            await fetchContractInfo();
+            setBalance(await web3.eth.getBalance(walletAddress) / 1e18);
             notification.open({ message: 'Deposit Successfully '});
           } catch (err) {
             message.error('Failed to Deposit')
@@ -139,6 +140,8 @@ const MainPanel = ({userInfo, visibility}) => {
             await deployedContract.methods.withdraw(web3.utils.toWei(value.amount.toString(), 'ether')).send({
               from: walletAddress,
             });
+            await fetchContractInfo();
+            setBalance(await web3.eth.getBalance(walletAddress) / 1e18);
             notification.open({ message: 'Withdraw Successfully' });
           } catch (err) {
             message.error('Failed to Withdraw')

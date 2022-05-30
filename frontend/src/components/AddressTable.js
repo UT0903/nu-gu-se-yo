@@ -22,13 +22,12 @@ const AddressTable = ({ addressData, setAddressData, walletAddress, deployedCont
     };
     const onRescue = (e) => {
         console.log(`rescue Address`)
-        deployedContract.methods.execute().send({
-            from: walletAddress
-        })
-        .then(notification.open({
-            message: 'Funds have been sent to Beneficiaries.'
-        }))
-        .catch(err => message.error(err.message));
+        try {
+            deployedContract.methods.execute().send({ from: walletAddress })
+            notification.open({ message: 'Funds have been sent to Beneficiaries.' });
+        } catch (err) {
+            message.error(err.message)
+        }
     }
 
     const columns = [
