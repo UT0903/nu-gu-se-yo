@@ -24,14 +24,22 @@ const App = () => {
     setUserInfo(null);
   }
   const onFinish = async (values) => {
-    const res = await axios.post(BASE_URL + "/api/login", {
-      id: values.id,
-      passwrd: values.password,
+    const res = await fetch(BASE_URL + "/api/login", {
+      method: 'POST',
+      body: JSON.stringify(
+        {
+          id: values.id,
+          passwrd: values.password,
+        }
+      )
     });
-    if (res.status === 'ok') {
-      setUserInfo(
-        values.id
-      );
+    const data = await res.json();
+    
+    if (data.status === 'ok') {
+      setUserInfo({
+        id: values.id,
+        address: data.address
+      });
       setModalShow(false);
       console.log('Success:', values);
     }
