@@ -20,8 +20,7 @@ const AddressTable = ({ addressData, setAddressData, walletAddress, deployedCont
             .catch(err => message.error(err.message));
         } 
     };
-
-    const rescueAddress = (e) => {
+    const onRescue = (e) => {
         console.log(`rescue Address`)
         deployedContract.methods.execute().send({
             from: walletAddress
@@ -44,7 +43,7 @@ const AddressTable = ({ addressData, setAddressData, walletAddress, deployedCont
             key: 'address',
         },
         {
-            title: 'Ratio',
+            title: 'Ratio (%)',
             dataIndex: 'ratio',
             key: 'ratio'
         },
@@ -141,7 +140,7 @@ const AddressTable = ({ addressData, setAddressData, walletAddress, deployedCont
         </Modal>
         <Space direction='horizontal'>
             <Button type="primary" onClick={showAddForm}>Add Beneficiary</Button>
-            <Button type="primary" onClick={rescueAddress}>Rescue</Button>
+            <Button type="primary" onClick={onRescue}>Rescue</Button>
         </Space>
         <Table style={{
             minWidth: 800

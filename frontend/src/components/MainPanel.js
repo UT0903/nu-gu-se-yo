@@ -7,7 +7,7 @@ import { message, notification } from 'antd';
 import AddressTable from './AddressTable.js';
 const { Title } = Typography;
 
-const MainPanel = ({userInfo}) => {
+const MainPanel = ({userInfo, visibility}) => {
       const [walletAddress, setWalletAddress] = useState(null);
       const [balance, setBalance] = useState(0.0);
 
@@ -136,7 +136,7 @@ const MainPanel = ({userInfo}) => {
           }
         } else if (value.dir === '<<<') {
           try {
-            deployedContract.methods.withdraw(web3.utils.toWei(value.amount.toString(), 'ether')).send({
+            await deployedContract.methods.withdraw(web3.utils.toWei(value.amount.toString(), 'ether')).send({
               from: walletAddress,
             });
             notification.open({ message: 'Withdraw Successfully' });
@@ -148,7 +148,8 @@ const MainPanel = ({userInfo}) => {
       
       return (
         <Space direction='vertical' style={{
-          paddingTop:100
+          paddingTop: 100,
+          visibility: visibility
         }}>
           <Space direction='horizontal'>
           <Card
