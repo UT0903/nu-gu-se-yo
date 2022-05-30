@@ -7,15 +7,15 @@ const AddressTable = ({ addressData, setAddressData}) => {
         setAddressData(_addressData);
         console.log(`del address ${record.address}`)
     };
-    const rescueAddress = (record) => (_) => {
-        console.log(`rescue from ${record.address}`)
+    const rescueAddress = (e) => {
+        console.log(`rescue Address`)
     }
     const columns = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name'
-        },
+        // {
+        //     title: 'Name',
+        //     dataIndex: 'name',
+        //     key: 'name'
+        // },
         {
             title: 'Address',
             dataIndex: 'address',
@@ -31,7 +31,6 @@ const AddressTable = ({ addressData, setAddressData}) => {
             key: 'action',
             render: (_, record) => (
                 <>
-                <Button type="primary" onClick={rescueAddress(record)}>Rescue</Button>
                     <Button type="primary" onClick={delRecord(record)}>Delete</Button>
                 </>
             ),
@@ -43,7 +42,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
     const addData = (value) => {
         console.log(value)
         const _addressData = addressData.concat({
-            name: value?.name,
+            // name: value?.name,
             address: value?.address,
             ratio: value?.ratio
         })
@@ -57,7 +56,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
             onCancel={() => { setModalShow(false) }}
         >
             <Form onFinish={addData} name="addAddressData">
-                <Form.Item
+                {/* <Form.Item
                     name="name"
                     label="Name"
                     style={{ paddingRight: 30 }}
@@ -69,7 +68,7 @@ const AddressTable = ({ addressData, setAddressData}) => {
                     ]}
                 >
                     <Input></Input>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item
                     name="address"
                     label="Address"
@@ -110,7 +109,10 @@ const AddressTable = ({ addressData, setAddressData}) => {
                 </Form.Item>
             </Form>
         </Modal>
-        <Button type="primary" onClick={showAddForm}>Add address</Button>
+        <Space direction='horizontal'>
+            <Button type="primary" onClick={showAddForm}>Add address</Button>
+            <Button type="primary" onClick={rescueAddress}>Rescue</Button>
+        </Space>
         <Table style={{
             minWidth: 800
         }}
