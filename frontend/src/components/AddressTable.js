@@ -1,16 +1,37 @@
 import { Table, Button, Modal, Form, Input, Space, InputNumber } from 'antd';
-import { notification } from 'antd';
+import { notification, message } from 'antd';
 import { useState } from 'react';
 const AddressTable = ({ addressData, setAddressData, walletAddress, deployedContract, fetchContractInfo}) => {
     const [modalShow, setModalShow] = useState(false);
+    
     const delRecord = (record) => (_) => {
-        const _addressData = addressData.filter((x) => (x?.address !== record?.address));
-        setAddressData(_addressData);
-        console.log(`del address ${record.address}`)
+        if (record?.address) {
+            deployedContract.methods.removeBeneficiary(record.address).send({
+                from: walletAddress
+            })
+            .then(() => {
+                const _addressData = addressData.filter((x) => (x?.address !== record.address));
+                setAddressData(_addressData);
+                console.log(`del address ${record.address}`);
+                notification.open({
+                    message: `Beneficiary ${record.address} Deleted`
+                })
+            })
+            .catch(err => message.error(err.message));
+        } 
     };
+
     const rescueAddress = (e) => {
         console.log(`rescue Address`)
+        deployedContract.methods.execute().send({
+            from: walletAddress
+        })
+        .then(notification.open({
+            message: 'Funds have been sent to Beneficiaries.'
+        }))
+        .catch(err => message.error(err.message));
     }
+
     const columns = [
         // {
         //     title: 'Name',
@@ -52,7 +73,7 @@ const AddressTable = ({ addressData, setAddressData, walletAddress, deployedCont
           from: walletAddress
         });
         notification.open({
-            message: 'Beneficiary Added'
+            message: `Beneficiary ${value?.address} Added`
         })
         await fetchContractInfo();
         setAddressData(_addressData);
