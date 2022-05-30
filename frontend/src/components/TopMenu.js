@@ -8,7 +8,9 @@ const TopMenu = ({userInfo, onLogin, onLogout }) => {
     setSelected(e.key)
   };
   return (
-    <Menu onClick={onClick} selectedKeys={[selected]} mode="horizontal">
+    <Menu onClick={onClick} selectedKeys={[selected]} mode="horizontal" style={{
+      background: "#DEFFFF"
+    }}>
       <Menu.Item key="log">
         {userInfo !== null ? (
           <div onClick={onLogout}>{userInfo.id} 登出</div>

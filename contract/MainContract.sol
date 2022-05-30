@@ -31,6 +31,31 @@ contract MainContract {
         _;
     }
 
+    modifier fromBeneficiary {
+        bool valid = false;
+        for (uint i = 0; i < info.numBeneficiaries; i++) {
+            if (msg.sender == info.beneficiaries[i].addr) {
+                valid = true;
+                break;
+            }
+        }
+        require(valid, "Only beneficiaries can use this function.");
+        _;
+    }
+
+    modifier fromOwnerOrBeneficiary {
+        bool valid = false;
+        valid = (msg.sender == owner);
+        for (uint i = 0; i < info.numBeneficiaries && !valid; i++) {
+            if (msg.sender == info.beneficiaries[i].addr) {
+                valid = true;
+                break;
+            }
+        }
+        require(valid, "Only owner and beneficiaries can use this function.");
+        _;
+    }
+
     // Just for deploying contract with ethers.
     constructor(address addr) payable {
         owner = addr;
@@ -93,7 +118,7 @@ contract MainContract {
         selfdestruct(addr);
     }
 
-    function execute () public fromOwner {
+    function execute () public fromOwnerOrBeneficiary {
         require(info.total == 100, "Invalid portion(!= 100%), please adjust beneficiaries' portions");
         for (uint i = 0; i < info.numBeneficiaries; i++) {
             uint value = info.balance * info.beneficiaries[i].portion / 100;

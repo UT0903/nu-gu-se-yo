@@ -3,8 +3,10 @@ import Web3 from 'web3';
 import TransferForm from './TransferForm.js';
 import MainContract from '../contracts/MainContract.json';
 import {getWeb3} from '../utils';
-import { Space, Card, Form } from 'antd';
+import { Space, Card, Form, Typography } from 'antd';
 import AddressTable from './AddressTable.js';
+const { Text, Title } = Typography;
+
 const MainPanel =
     ({userInfo}) => {
       const [walletAddress, setWalletAddress] = useState(null);
@@ -63,34 +65,44 @@ const MainPanel =
         fetchContractInfo(contract);
       }, [contract]);
   
+      const onTransfer = (value) => {
+        console.log('onTransfer:')
+        console.log(value)
+      }
+      
       return (
-        <Space direction='vertical'>
+        <Space direction='vertical' style={{
+          paddingTop:100
+        }}>
           <Space direction='horizontal'>
           <Card
             
             size="small"
             style={{
               minWidth: 400,
-              background: '#ececec'
+              background: '#ececec',
+              height: 250
             }}
           >
-            <p>錢包地址:</p>
-            <p>{walletAddress}</p>
-            <p>目前錢包餘額: {balance}</p>
+              <Title level={5}>錢包地址:</Title>
+              <Title level={5}>{walletAddress}</Title>
+              <Title level={5}>目前錢包餘額: {balance}</Title>
           </Card>
-          <TransferForm balance={{ wallet: balance, bank: 3 }} form={form}/>
+            <TransferForm balance={{ wallet: balance, bank: 3 }} form={form} onTransfer={onTransfer}/>
           <Card
             size="small"
             style={{
               minWidth: 400,
-              background: '#ececec'
+              background: '#ececec',
+              height: 250
             }}
-          >
-            <button onClick = {deployContract}>部署</button>
-            <p>保險錢包餘額: {3}</p>
+            >
+              <Title level={5}>保險錢包地址:</Title>
+              <Title level={5}>{"0xblablablabla"}</Title>
+              <Title level={5}>保險錢包餘額: {3}</Title>
           </Card>
           </Space>
-          <AddressTable addressData={addressData} setAddressData={setAddressData}></AddressTable>
+          <AddressTable addressData={addressData} setAddressData={setAddressData} ></AddressTable>
         </Space>
       );
     }
