@@ -1,7 +1,7 @@
-import {Button, Form, InputNumber, Segmented, Select, Space, Radio} from 'antd';
+import {Button, Form, InputNumber, Segmented, Select, Space, Radio, Card} from 'antd';
 import {useState} from 'react';
 const {Option} = Select;
-const TransferForm = ({balance, form}) => {
+const TransferForm = ({balance, form, onTransfer}) => {
     // const [inputMax, setInputMax] = useState(balance.wallet);
     // const [disable, setDisable] = useState((balance.wallet > 1)? true:false);
 
@@ -29,15 +29,28 @@ const TransferForm = ({balance, form}) => {
     // }
     const maxVal = (form.getFieldsValue("dir") === '>>>')? balance.wallet: balance.bank
     return (
-        <Space direction='vertical'>
-            <Form form={form} name="transfer">
-                <Form.Item name="dir" label="Transfer Direction">
+        <Card style={{
+            height: 250
+        }}>
+            <Form form={form} name="transfer" onFinish={onTransfer}>
+                <Form.Item name="dir" label="Transfer Direction" rules={[
+                    {
+                        required: true,
+                        message: 'please select direction'
+                    }
+                ]}>
                 <Radio.Group block>
                         <Radio.Button value=">>>">{'>>>'}</Radio.Button>
                         <Radio.Button value="<<<">{'<<<'}</Radio.Button>
                 </Radio.Group>
                 </Form.Item>
                 <Form.Item name="amount" label="Amount"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'please set amount'
+                        }
+                    ]}
                     // rules={[
                     // {
                     //     max: maxVal,
@@ -60,7 +73,7 @@ const TransferForm = ({balance, form}) => {
         
         
             
-        </Space>
+        </Card>
     );
 }
 export default TransferForm;

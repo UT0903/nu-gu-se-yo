@@ -31,7 +31,15 @@ const App = () => {
     console.log('Failed:', errorInfo);
   };
   return (
-    <div className='App'>
+    <div className='App' style={{
+      backgroundImage: `url(background.jpg)`,
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      width: '100vw',
+      height: '100vh',
+      textAlign: 'center'
+    }}>
       <TopMenu userInfo={userInfo}
           onLogin={handleLogin}
           onLogout={handleLogout} />
