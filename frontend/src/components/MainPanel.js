@@ -56,9 +56,9 @@ const MainPanel =
               height: 250
             }}
           >
-              <Title level={5}>錢包地址:</Title>
+              <Title level={5}>Wallet Address:</Title>
               <Title level={5}>{account}</Title>
-              <Title level={5}>目前錢包餘額: {balance}</Title>
+              <Title level={5}>Wallet Remain: {balance}</Title>
           </Card>
             <TransferForm balance={{ wallet: balance, bank: 3 }} form={form} onTransfer={onTransfer}/>
           <Card
@@ -69,19 +69,14 @@ const MainPanel =
               height: 250
             }}
             >
-              <Title level={5}>保險錢包地址:</Title>
+              <Title level={5}>Insurance Address:</Title>
               <Title level={5}>{"0xblablablabla"}</Title>
-              <Title level={5}>保險錢包餘額: {3}</Title>
+              <Title level={5}>Insurance Remain: {3}</Title>
           </Card>
           </Space>
           <AddressTable addressData={addressData} setAddressData={setAddressData} ></AddressTable>
         </Space>
       );
-        // <>{account}<p>目前錢包餘額：{
-        //   balance}</p>
-        //     <p>保險錢包餘額：{}</p>
-        //       <button onClick = {deployContract}>部署</button>
-        // </>);
     }
 
 export default MainPanel;

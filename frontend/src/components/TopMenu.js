@@ -13,9 +13,9 @@ const TopMenu = ({userInfo, onLogin, onLogout }) => {
     }}>
       <Menu.Item key="log">
         {userInfo !== null ? (
-          <div onClick={onLogout}>{userInfo.id} 登出</div>
+          <div onClick={onLogout}>{userInfo.id} Logout</div>
         ) : (
-          <div onClick={onLogin}>登入</div>
+          <div onClick={onLogin}>Login</div>
         )}
       </Menu.Item>
     </Menu>
