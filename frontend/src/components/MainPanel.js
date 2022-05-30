@@ -3,12 +3,12 @@ import Web3 from 'web3';
 import TransferForm from './TransferForm.js';
 import MainContract from '../contracts/MainContract.json';
 import {getWeb3} from '../utils';
-import { Space, Card, Form, Typography } from 'antd';
+import { Space, Card, Form, Typography, Spin } from 'antd';
+import { message, notification } from 'antd';
 import AddressTable from './AddressTable.js';
 const { Text, Title } = Typography;
 
-const MainPanel =
-    ({userInfo}) => {
+const MainPanel = ({userInfo}) => {
       const [walletAddress, setWalletAddress] = useState(null);
       const [balance, setBalance] = useState(0.0);
 
@@ -18,6 +18,8 @@ const MainPanel =
       const [web3, setWeb3] = useState(null);
       const [addressData, setAddressData] = useState([]);
       const [form] = Form.useForm();
+
+      const [deploying, setDeploying] = useState(false);
 
       useEffect(() => {
         loadWeb3();
@@ -39,10 +41,11 @@ const MainPanel =
 
       const deployContract = async () => {
         if (!userInfo) {
-          console.log('Please log in first!');
+          message.warn('Please log in first');
           return;
         }
         const _contract = new web3.eth.Contract(MainContract.abi);
+        setDeploying(true);
         _contract.deploy({
           data: MainContract.bytecode,
           arguments: [walletAddress]
@@ -52,8 +55,13 @@ const MainPanel =
           const _contractAddress = deployedContract.options.address;
           console.log(`Contract deployed at ${_contractAddress}`);
           setContractAddress(_contractAddress);
+          notification.open({
+            message: 'Contract Deployed',
+            description: `Contract deployed at ${_contractAddress}`
+          });
+          setDeploying(false);
         }).catch(err => {
-          console.log('Failed to deploy contact:', err);
+          message.error('Failed to deploy contact:', err);
         });
       }
 
@@ -125,7 +133,7 @@ const MainPanel =
                   <Title level={5}>Insurance Remain: {contractBalance}</Title>
                 </div> :
                 <div>
-                  <button onClick={deployContract}>Deploy contract</button>
+                  {deploying ? <Spin /> : <button onClick={deployContract}>Deploy contract</button>}
                 </div>
               }
           </Card>

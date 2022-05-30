@@ -1,9 +1,5 @@
 import Web3 from 'web3';
 
-export const getAccount = () => {
-
-};
-
 export const getWeb3 = () =>
 new Promise((resolve, reject) => {
   window.addEventListener("load", async () => {
