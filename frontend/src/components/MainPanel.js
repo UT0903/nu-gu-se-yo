@@ -85,7 +85,7 @@ const MainPanel = ({userInfo}) => {
       const fetchContractInfo = async () => {
         console.log(contractAddress);
         const _contractBalance = await web3.eth.getBalance(contractAddress);
-        setContractBalance(_contractBalance);
+        setContractBalance(_contractBalance / 1e18);
         const _contract = new web3.eth.Contract(MainContract.abi, contractAddress);
         const numBeneficiaries = await _contract.methods.getNumBeneficiaries().call({
           from: walletAddress
@@ -124,6 +124,24 @@ const MainPanel = ({userInfo}) => {
       const onTransfer = (value) => {
         console.log('onTransfer:')
         console.log(value)
+        if (value.dir === '>>>') {
+          deployedContract.methods.deposit().send({
+            from: walletAddress,
+            value: web3.utils.toWei(value.amount.toString(), 'ether')
+          })
+          .then(notification.open({
+            message: 'Deposit Successfully'
+          }))
+          .catch(message.error('Failed to Deposit'));
+        } else if (value.dir === '<<<') {
+          deployedContract.methods.withdraw(web3.utils.toWei(value.amount.toString(), 'ether')).send({
+            from: walletAddress,
+          })
+          .then(notification.open({
+            message: 'Withdraw Successfully'
+          }))
+          .catch(message.error('Failed to Withdraw'));
+        }
       }
       
       return (
