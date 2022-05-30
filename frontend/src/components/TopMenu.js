@@ -9,7 +9,7 @@ const TopMenu = ({userInfo, onLogin, onLogout }) => {
   };
   return (
     <Menu onClick={onClick} selectedKeys={[selected]} mode="horizontal" style={{
-      background: "#DEFFFF"
+      background: "#FFFFE8"
     }}>
       <Menu.Item key="log">
         {userInfo !== null ? (
